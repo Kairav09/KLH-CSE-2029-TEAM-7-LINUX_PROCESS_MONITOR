@@ -1,6 +1,6 @@
 # Linux Process Monitoring and Control System
 
-A C systems programming project that scans `/proc`, computes
+A C based project that scans `/proc`, computes
 live CPU% and memory usage per process, displays a `top`-style table, flags
 processes over configurable thresholds, and lets the user pause, resume, or
 kill a process — all logged with timestamps.
