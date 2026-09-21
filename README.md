@@ -109,7 +109,3 @@ process started — not a live percentage. To get a percentage:
 | Member 1 | Process scanning + CPU% calculation | `member1_scanner.c`, `member1_cpu_calc.c` |
 | Member 2 | Display + threshold checking | `member2_display.c`, `member2_threshold.c` |
 | Member 3 | Process control + logging + integration | `member3_control.c`, `member3_logger.c`, `member3_main.c` |
-
-## License
-
-Educational project — no license restrictions.
