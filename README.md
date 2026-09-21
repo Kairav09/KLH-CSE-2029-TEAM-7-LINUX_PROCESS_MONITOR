@@ -23,7 +23,7 @@ kill a process — all logged with timestamps.
 ## Project Structure
 
 ```
-proc_monitor/
+src/
 ├── process.h              # shared struct Process + all function declarations
 ├── member1_scanner.c       # /proc scanning: PID, PPID, state, memory
 ├── member1_cpu_calc.c       # CPU% calculation from two snapshots
