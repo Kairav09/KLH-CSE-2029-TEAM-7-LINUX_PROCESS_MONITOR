@@ -75,46 +75,5 @@ os-project/
 └── README.md
 ```
 
-## Docs
-- Problem definition: `docs/PROBLEM_DEFINITION.md`
-- Architecture + API contract: `docs/ARCHITECTURE.md`
-- Testing matrix: `docs/TESTING.md`
-- Project report: `docs/PROJECT_REPORT.md` (also as PDF: `docs/PROJECT_REPORT.pdf`)
-- Presentation: `docs/PRESENTATION.pptx` (source: `docs/build_pptx.py`)
-- Live demo script: `docs/DEMO_SCRIPT.md`
-- Evaluation mapping: see below
 
-## Evaluation mapping (100 pts)
-| Criterion | Points | Where it is covered |
-|---|---|---|
-| Problem Definition | 10 | `docs/PROBLEM_DEFINITION.md` |
-| Novelty and Innovation | 15 | Load patterns, safety guardrails, compare + export |
-| Architecture Design | 10 | `docs/ARCHITECTURE.md` |
-| Implementation | 20 | Working engine + dashboard (Phases 2–4) |
-| Testing | 10 | Testing matrix (Phase 5) |
-| Documentation | 10 | README + docs + inline comments |
-| GitHub Repository link | 5 | Repo link at submission |
-| Presentation | 10 | Demo script + slides (Phase 5) |
-| Teamwork | 5 | Team of 3 — contributions decided at the end |
-| Business Impact | 5 | QA / DevOps / capacity-planning use case |
-
-## Phases
-- **Phase 1 (done):** Problem definition + architecture + skeleton + `/api/system` + dashboard shell
-- **Phase 2 (done, verified 2026-10-16):** Real stress engine — CPU workers with duty-cycle intensity, memory allocation + page-touching (hold/churn), per-second metrics, SSE live stream, STOP (0.1s), watchdog (auto-stop when free memory &lt; 120 MB), SQLite persistence, CSV export, frontend wired (controls + live sparklines + history). See `docs/TESTING.md` for verified results.
-- **Phase 3 (done, verified 2026-10-16):** Polished dashboard — 160px SVG charts with axes + hover crosshair/tooltip (CPU %, Memory %, Throughput), per-core CPU bars, run detail view (click any history row: config + avg/peak + full charts + CSV), live stat tiles, progress bar with elapsed/remaining, SQLite per-core migration for old DBs. See `docs/TESTING.md`.
-- **Phase 4 (done, verified 2026-10-16):** Presets (Baseline, Light, Medium, Heavy, Spike, Ramp, Memory-pressure — auto-clamped to host cores/RAM), run compare (tick 2 history rows → overlay CPU/Memory charts + diff table in pp + compare CSV + copy compare summary), report helpers (Copy summary on run detail, for PPT/report). Compare logic in `frontend/src/lib/compare.js` (pure, unit-tested). See `docs/TESTING.md`.
-- **Phase 5 (done, verified 2026-10-16):** Full test matrix (4 patterns + edges + validation + SSE/STOP — see `docs/TESTING.md`), project report (`docs/PROJECT_REPORT.md`), presentation (`docs/PRESENTATION.pptx`), live demo script (`docs/DEMO_SCRIPT.md`).
-- **Frontend redesign (done, verified 2026-10-16):** "Thermal Console" visual system — dark instrument theme built for this project (Space Grotesk + JetBrains Mono; CPU = amber/heat, Memory = cyan/coolant), hero with live status + big CPU readout, Lab console with preset cards, sliders, Hold/Churn segmented control and load-pattern previews (Sustained/Ramp/Spike/Step mini-graphs), telemetry panel with KPI tiles + per-core bars, machine strip with free-memory warning. Engine untouched. Also fixed: Load avg now shows **N/A** on Windows (Node returns fake `0.00` there) — backend returns `loadAvg: null` on `win32`.
-- **Frontend redesign v3 (done, verified 2026-10-31):** "Editorial Lab" visual system inspired by the Team 7 project site — paper-on-ink palette (signal orange `#FF4D00` = CPU, acid lime `#D9FF3D` = Memory), Fraunces serif display type, numbered sections (01 Stress Vector / 02 Control Deck / 03 Live Telemetry / 04 Benchmark Records / 05 How It Works / 06 Team 07), corner-tick lab panels, chamfered primary CTAs, square-thumb sliders, graph-paper grid background, live CHRONO clock, and a Team 07 attribution section. The site's oversized hero type was deliberately **not** copied: the hero tagline is capped at 48px (`clamp(32px, 4.2vw, 48px)`). No Tailwind/GSAP/custom-cursor from the site — this stays a clean React + Vite build. Engine and API logic untouched; production build passes and a live 5s run was verified end-to-end against the backend.
-
-## Hackathon deliverables (per prof instructions)
-- Working prototype: this repo (run it with Quick start above)
-- GitHub repo: complete source + README + docs + project report — see `docs/PROJECT_REPORT.md`
-- Presentation (PPT): problem, design, implementation, tech, testing, results, impact — see `docs/PRESENTATION.pptx`
-- Live demo: start a run from the dashboard and show live metrics + STOP + history — see `docs/DEMO_SCRIPT.md`
-- Team participation: team of 3 — all members contribute and can explain roles/concepts (contributions decided at the end)
-- Testing & validation: see `docs/TESTING.md`
-- Originality: original implementation, controlled environment, capped loads, no disruption to other users/processes
-
-## Safety
-Local lab tool — bind to `localhost` by default. All memory allocations are capped at 50% of total RAM. Never run unbounded stress on a machine with unsaved work.
+pped at 50% of total RAM. Never run unbounded stress on a machine with unsaved work.
