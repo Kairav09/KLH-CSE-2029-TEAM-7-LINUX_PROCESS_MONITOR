@@ -2,11 +2,7 @@
  * member1_scanner.c
  * -------------------------------------------------------
  * MEMBER 1's PART A -- scanning /proc for PID, PPID, STATE,
- *                       and memory (VmRSS).
- *
- * This is the same logic from the original member1_proc_scanner.c,
- * just moved into its own file now that struct Process lives in
- * process.h. No behavior changed -- only where the code lives.
+ *                       name, owner, and memory (VmRSS).
  * -------------------------------------------------------
  */
 
@@ -15,6 +11,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <ctype.h>
+#include <pwd.h>
 #include "process.h"
 
 int is_all_digits(const char *s) {
@@ -27,9 +24,13 @@ int is_all_digits(const char *s) {
 }
 
 /*
- * Parse /proc/<pid>/stat for STATE, PPID, UTIME, STIME.
- * Field numbering starts right after the ')' that closes the
- * (comm) field: STATE=1, PPID=2, ..., UTIME=12, STIME=13.
+ * Parse /proc/<pid>/stat for NAME, STATE, PPID, kernel-thread flag,
+ * UTIME and STIME.
+ *
+ * The line looks like:  1234 (my prog) S 1 ... flags ... utime stime ...
+ * The name sits inside parentheses and can itself contain spaces or
+ * ')' characters, so we split at the LAST ')'. Fields after it, counted
+ * from STATE=1:  PPID=2, FLAGS=7, UTIME=12, STIME=13.
  */
 int parse_stat(int pid, struct Process *p) {
     char path[64];
@@ -45,10 +46,17 @@ int parse_stat(int pid, struct Process *p) {
     }
     fclose(fp);
 
+    char *open_paren = strchr(line, '(');
     char *close_paren = strrchr(line, ')');
-    if (!close_paren) return -1;
+    if (!open_paren || !close_paren || close_paren < open_paren) return -1;
 
     p->pid = pid;
+
+    // command name = text between the first '(' and the last ')'
+    size_t name_len = (size_t)(close_paren - open_paren - 1);
+    if (name_len >= NAME_LEN) name_len = NAME_LEN - 1;
+    memcpy(p->name, open_paren + 1, name_len);
+    p->name[name_len] = '\0';
 
     char *rest = close_paren + 2; // skip ") "
     char *token;
@@ -60,6 +68,9 @@ int parse_stat(int pid, struct Process *p) {
         switch (field) {
             case 1: p->state = token[0]; break;
             case 2: p->ppid = atoi(token); break;
+            case 7: p->is_kernel_thread =
+                        (strtoul(token, NULL, 10) & PF_KTHREAD_FLAG) != 0;
+                    break;
             case 12: p->utime = strtoul(token, NULL, 10); break;
             case 13: p->stime = strtoul(token, NULL, 10); break;
         }
@@ -71,9 +82,11 @@ int parse_stat(int pid, struct Process *p) {
 }
 
 /*
- * Parse /proc/<pid>/status for VmRSS (resident memory in kB).
+ * Parse /proc/<pid>/status for VmRSS (resident memory in kB) and the
+ * owner's user ID ("Uid:" line, first number = real UID). This file is
+ * "Label:\tvalue" per line, much easier to parse than /stat.
  */
-int parse_status_mem(int pid, struct Process *p) {
+int parse_status(int pid, struct Process *p) {
     char path[64];
     snprintf(path, sizeof(path), "/proc/%d/status", pid);
 
@@ -86,11 +99,21 @@ int parse_status_mem(int pid, struct Process *p) {
     while (fgets(line, sizeof(line), fp) != NULL) {
         if (strncmp(line, "VmRSS:", 6) == 0) {
             sscanf(line + 6, "%ld", &p->mem_kb);
-            break;
+        } else if (strncmp(line, "Uid:", 4) == 0) {
+            unsigned int uid = 0;
+            sscanf(line + 4, "%u", &uid);
+            p->uid = (uid_t)uid;
         }
     }
-
     fclose(fp);
+
+    // Turn the numeric UID into a username (e.g. 0 -> "root").
+    struct passwd *pw = getpwuid(p->uid);
+    if (pw != NULL) {
+        snprintf(p->owner, sizeof(p->owner), "%s", pw->pw_name);
+    } else {
+        snprintf(p->owner, sizeof(p->owner), "%u", (unsigned)p->uid);
+    }
     return 0;
 }
 
@@ -116,8 +139,7 @@ int scan_processes(struct Process procs[], int max_count) {
         memset(&p, 0, sizeof(p)); // C does not zero-init structs like Java does
 
         if (parse_stat(pid, &p) != 0) continue;   // process vanished, skip
-        parse_status_mem(pid, &p);                // memory (best-effort)
-
+        if (parse_status(pid, &p) != 0) continue; // vanished between reads
         procs[count] = p;
         count++;
     }

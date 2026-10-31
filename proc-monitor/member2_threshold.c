@@ -10,11 +10,8 @@
 #include "process.h"
 
 /*
- * Walk the process list and print a warning for any process
- * whose CPU% or memory exceeds the given limits.
- *
- * Returns the number of processes flagged, so the caller (Member
- * 3's main loop) can decide whether to act on any of them.
+ * Print a warning for any process whose CPU% or memory exceeds the
+ * given limits. Returns how many were flagged.
  */
 int check_thresholds(struct Process procs[], int count,
                       double cpu_limit, long mem_limit_kb) {
@@ -25,10 +22,10 @@ int check_thresholds(struct Process procs[], int count,
         int over_mem = procs[i].mem_kb > mem_limit_kb;
 
         if (over_cpu || over_mem) {
-            printf("[WARNING] PID %d exceeds limit -- CPU: %.2f%% "
+            printf("[WARNING] PID %d (%s) exceeds limit -- CPU: %.2f%% "
                    "(limit %.2f%%), MEM: %ld kB (limit %ld kB)\n",
-                   procs[i].pid, procs[i].cpu_percent, cpu_limit,
-                   procs[i].mem_kb, mem_limit_kb);
+                   procs[i].pid, procs[i].name, procs[i].cpu_percent,
+                   cpu_limit, procs[i].mem_kb, mem_limit_kb);
             flagged++;
         }
     }
