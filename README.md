@@ -74,6 +74,3 @@ os-project/
 │       └── lib/ (procApi.js)
 └── README.md
 ```
-
-
-pped at 50% of total RAM. Never run unbounded stress on a machine with unsaved work.
