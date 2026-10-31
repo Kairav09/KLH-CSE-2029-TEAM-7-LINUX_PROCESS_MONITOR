@@ -1,6 +1,6 @@
 // API client for the process-monitor backend — the web port of the
 // C program's scan / control / log cycle (see backend/src/routes/processes.js).
-const BASE = "https://cio-unavailable-regulatory-believe.trycloudflare.com";;
+const BASE = "https://cio-unavailable-regulatory-believe.trycloudflare.com";
 
 export async function fetchProcesses() {
   const res = await fetch(`${BASE}/api/processes`);
