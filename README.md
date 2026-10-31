@@ -1,7 +1,3 @@
-# StressLab — CPU and Memory Stress Testing Tool
-
-A controlled workload generator that stresses CPU and memory and measures system performance under different loads. Built as a complete web application for the OS Hackathon.
-
 ## ProcMonitor web frontend (v4, 2026-10-31) — based on the C project
 
 The current web frontend (`frontend/`) is **ProcMonitor**, a web version of the team's C program **Project #18: Linux Process Monitoring and Control System** (sources in `proc-monitor/`). The backend route `backend/src/routes/processes.js` is a faithful port of the C logic, and the page mirrors the C program's interface:
